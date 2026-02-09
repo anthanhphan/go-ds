@@ -13,8 +13,6 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
 
-	// "github.com/anthanhphan/go-distributed-file-storage/internal/storage/port" // No, we are in API. API shouldn't depend on internal/storage/port?
-	// The API app depends on shard.Ring.
 	"github.com/anthanhphan/go-distributed-file-storage/pkg/shard"
 	storagev1 "github.com/anthanhphan/go-distributed-file-storage/proto/gen/storage/v1"
 	"github.com/anthanhphan/gosdk/logger"
