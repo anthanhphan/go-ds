@@ -1,0 +1,128 @@
+syntax = "proto3";
+
+package storage.v1;
+
+option go_package = "github.com/anthanhphan/go-distributed-file-storage/proto/gen/storage/v1;storagev1";
+
+service StorageService {
+  // WriteChunk streams a chunk to the storage node.
+  rpc WriteChunk(stream WriteChunkRequest) returns (WriteChunkResponse);
+
+  // ReadChunk streams a chunk from the storage node.
+  rpc ReadChunk(ReadChunkRequest) returns (stream ReadChunkResponse);
+
+  // DeleteChunk deletes a chunk from the storage node.
+  rpc DeleteChunk(DeleteChunkRequest) returns (DeleteChunkResponse);
+
+  // GetClusterTopology returns the current cluster topology (list of nodes).
+  rpc GetClusterTopology(GetClusterTopologyRequest) returns (GetClusterTopologyResponse);
+
+  // GetMerkleRoot returns the current root hash of the Merkle Tree.
+  rpc GetMerkleRoot(GetMerkleRootRequest) returns (GetMerkleRootResponse);
+
+  // GetMerkleNodes returns child hashes for specific parent indices.
+  rpc GetMerkleNodes(GetMerkleNodesRequest) returns (GetMerkleNodesResponse);
+
+  // ListItemsInBucket returns all chunk IDs and checksums in a specific bucket.
+  rpc ListItemsInBucket(ListItemsInBucketRequest) returns (ListItemsInBucketResponse);
+
+  // SyncChunk pulls a chunk from a specific source node.
+  rpc SyncChunk(SyncChunkRequest) returns (SyncChunkResponse);
+
+  // GarbageCollect triggers a scan for orphaned chunks.
+  rpc GarbageCollect(GarbageCollectRequest) returns (GarbageCollectResponse);
+}
+
+message WriteChunkRequest {
+  string chunk_id = 1;
+  bytes data = 2;
+  uint32 checksum = 3;
+  string parent_id = 4; // file_id this chunk belongs to (for GC)
+}
+
+message GarbageCollectRequest {
+  int32 grace_period_seconds = 1; // Don't delete chunks newer than this
+}
+
+message GarbageCollectResponse {
+  int32 chunks_deleted = 1;
+  int64 bytes_reclaimed = 2;
+}
+
+message WriteChunkResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message ReadChunkRequest {
+  string chunk_id = 1;
+}
+
+message ReadChunkResponse {
+  string chunk_id = 1;
+  bytes data = 2;
+  uint32 checksum = 3;
+  bool found = 4;
+}
+
+message DeleteChunkRequest {
+  string chunk_id = 1;
+}
+
+message DeleteChunkResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message GetClusterTopologyRequest {}
+
+message GetClusterTopologyResponse {
+  message Node {
+    string id = 1;
+    string addr = 2;
+    string shard_id = 3; // Optional: empty if not sharded
+    int32 replica_id = 4;
+  }
+  repeated Node nodes = 1;
+}
+
+message GetMerkleRootRequest {}
+message GetMerkleRootResponse {
+  string root_hash = 1;
+}
+
+message GetMerkleNodesRequest {
+  repeated int32 indices = 1;
+}
+
+message GetMerkleNodesResponse {
+  message Node {
+    int32 index = 1;
+    string hash = 2;
+    string left_hash = 3;
+    string right_hash = 4;
+  }
+  repeated Node nodes = 1;
+}
+
+message ListItemsInBucketRequest {
+  int32 bucket_id = 1;
+}
+
+message ListItemsInBucketResponse {
+  message Item {
+    string chunk_id = 1;
+    uint32 checksum = 2;
+  }
+  repeated Item items = 1;
+}
+
+message SyncChunkRequest {
+  string chunk_id = 1;
+  string source_addr = 2;
+}
+
+message SyncChunkResponse {
+  bool success = 1;
+  string message = 2;
+}

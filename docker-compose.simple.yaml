@@ -1,0 +1,63 @@
+# Simple Docker Compose for a single-shard, 3-replica cluster.
+
+services:
+  storage-1:
+    build: .
+    container_name: storage-1
+    command: ["./storage", "--configPath", "configs/simple/storage-node-1.yaml"]
+    volumes:
+      - ./configs/simple/storage-node-1.yaml:/app/configs/simple/storage-node-1.yaml:ro
+      - simple-storage-1-data:/data/storage-node-1
+    networks:
+      - app-network
+
+  storage-2:
+    build: .
+    container_name: storage-2
+    command: ["./storage", "--configPath", "configs/simple/storage-node-2.yaml"]
+    volumes:
+      - ./configs/simple/storage-node-2.yaml:/app/configs/simple/storage-node-2.yaml:ro
+      - simple-storage-2-data:/data/storage-node-2
+    networks:
+      - app-network
+
+  storage-3:
+    build: .
+    container_name: storage-3
+    command: ["./storage", "--configPath", "configs/simple/storage-node-3.yaml"]
+    volumes:
+      - ./configs/simple/storage-node-3.yaml:/app/configs/simple/storage-node-3.yaml:ro
+      - simple-storage-3-data:/data/storage-node-3
+    networks:
+      - app-network
+
+  api:
+    build: .
+    container_name: api
+    command: ["./api", "--configPath", "configs/simple/api.yaml"]
+    volumes:
+      - ./configs/simple/api.yaml:/app/configs/simple/api.yaml:ro
+    ports:
+      - "8080:8080"
+    depends_on:
+      - storage-1
+      - storage-2
+      - storage-3
+      - redis
+    networks:
+      - app-network
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  simple-storage-1-data:
+  simple-storage-2-data:
+  simple-storage-3-data:

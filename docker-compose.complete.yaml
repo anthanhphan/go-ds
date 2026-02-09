@@ -1,0 +1,89 @@
+# Docker Compose for Distributed File Storage
+
+services:
+  storage-1:
+    build: .
+    container_name: storage-1
+    command: ["./storage", "--configPath", "configs/complete/storage-node-1.yaml"]
+    volumes:
+      - ./configs/complete/storage-node-1.yaml:/app/configs/storage-node-1.yaml
+      - storage-1-data:/data/storage-node-1
+
+  storage-2:
+    build: .
+    container_name: storage-2
+    command: ["./storage", "--configPath", "configs/complete/storage-node-2.yaml"]
+    volumes:
+      - ./configs/complete/storage-node-2.yaml:/app/configs/storage-node-2.yaml
+      - storage-2-data:/data/storage-node-2
+
+  storage-3:
+    build: .
+    container_name: storage-3
+    command: ["./storage", "--configPath", "configs/complete/storage-node-3.yaml"]
+    volumes:
+      - ./configs/complete/storage-node-3.yaml:/app/configs/storage-node-3.yaml
+      - storage-3-data:/data/storage-node-3
+
+  storage-4:
+    build: .
+    container_name: storage-4
+    command: ["./storage", "--configPath", "configs/complete/storage-node-4.yaml"]
+    volumes:
+      - ./configs/complete/storage-node-4.yaml:/app/configs/storage-node-4.yaml
+      - storage-4-data:/data/storage-node-4
+
+  storage-5:
+    build: .
+    container_name: storage-5
+    command: ["./storage", "--configPath", "configs/complete/storage-node-5.yaml"]
+    volumes:
+      - ./configs/complete/storage-node-5.yaml:/app/configs/storage-node-5.yaml
+      - storage-5-data:/data/storage-node-5
+
+  storage-6:
+    build: .
+    container_name: storage-6
+    command: ["./storage", "--configPath", "configs/complete/storage-node-6.yaml"]
+    volumes:
+      - ./configs/complete/storage-node-6.yaml:/app/configs/storage-node-6.yaml
+      - storage-6-data:/data/storage-node-6
+
+  api:
+    build: .
+    container_name: api
+    command: ["./api", "--configPath", "configs/complete/api.yaml"]
+    volumes:
+      - ./configs/complete/api.yaml:/app/configs/api.yaml
+    ports:
+      - "8080:8080"
+    depends_on:
+      - storage-1
+      - storage-2
+      - storage-3
+      - storage-4
+      - storage-5
+      - storage-6
+      - redis
+    networks:
+      - app-network
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  storage-1-data:
+  storage-2-data:
+  storage-3-data:
+  storage-4-data:
+  storage-5-data:
+  storage-6-data:

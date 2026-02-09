@@ -1,0 +1,21 @@
+server:
+  addr: ":8080"
+app:
+  node_id: 1
+  chunk_size: 8388608
+  max_file_size: 2147483648
+  parallel_chunks: 4
+  max_retries: 3
+  write_timeout_ms: 15000
+  read_consistency: one
+  write_consistency: quorum
+storage:
+  seeds:
+    - "storage-1:8081"
+    - "storage-2:8081"
+    - "storage-3:8081"
+redis:
+  addr: "redis:6379"
+logger:
+  level: "info"
+  encoding: "json"

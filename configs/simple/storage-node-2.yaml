@@ -1,0 +1,18 @@
+server:
+  node_id: storage-node-2
+  hostname: 0.0.0.0
+  port: 8081
+  shard_id: shard-1
+  replica_id: 2
+gossip:
+  port: 7946
+  seeds:
+    - "storage-1:7946"
+    - "storage-2:7946"
+    - "storage-3:7946"
+lsm:
+  data_dir: /data/storage-node-2
+  fsync: true
+logger:
+  level: "info"
+  encoding: "json"
